@@ -2,7 +2,9 @@ CXX = g++
 CPPFLAGS += -Wall -Wextra -Werror -Wno-missing-field-initializers -Wold-style-cast
 CXXFLAGS += -g
 
-sources = $(wildcard *.cpp)
+test_sources = $(wildcard test-*.cpp)
+test_objects = $(patsubst %.cpp,out/%.o,$(test_sources))
+sources = $(filter-out test-%.cpp, $(wildcard *.cpp))
 headers = $(wildcard *.hpp) $(wildcard *.h)
 objects = $(patsubst %.cpp,out/%.o,$(sources))
 
@@ -25,13 +27,25 @@ run: out/main
 
 build: out/main
 
-out/main: $(objects) $(lab_header_checks) $(headers)
+test: out/test-main
+	$(if $(SILENT),,@echo [TEST] $<)
+	$(hidecmd)$(if $(TIMEOUT),$(TIMEOUT_CMD) --signal=KILL $(TIMEOUT)s )$(if $(VALGRIND),valgrind $(VALGRIND) )$< $(TEST_ARGS)
+
+out/test-main: $(test_objects) $(objects)
+	$(if $(SILENT),,@echo [LINK] $@)
+	$(hide)$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $(filter-out out/main.o,$^)
+
+$(test_objects): out/%.o: %.cpp | out/.dir
+	$(if $(SILENT),,@echo [C++ ] $<)
+	$(hide)$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wno-old-style-cast -Wno-unused-parameter -MMD -MP -c -o $@ $<
+
+out/main: $(objects) $(lab_header_checks)
 	$(if $(SILENT),,@echo [LINK] $@)
 	$(hide)$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $(filter-out %.header,$^)
 
 $(objects): out/%.o: %.cpp | out/.dir
 	$(if $(SILENT),,@echo [C++ ] $<)
-	$(hide)$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	$(hide)$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MMD -MP -c -o $@ $<
 
 %/.dir:
 	@mkdir -p $(@D) && touch $@
@@ -43,3 +57,5 @@ $(lab_header_checks): out/%.header: % | out/.dir
 
 clean:
 	rm -rf out
+
+include $(wildcard $(patsubst %.o,%.d,$(objects) $(test_objects)))
