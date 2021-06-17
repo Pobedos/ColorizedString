@@ -1,5 +1,5 @@
 CXX = g++
-CPPFLAGS += -Wall -Wextra -Werror -Wno-missing-field-initializers -Wold-style-cast
+CPPFLAGS += -Wall -Wextra -Werror -Wno-missing-field-initializers -Wold-style-cast $(if $(BOOST_LOCATION),-isystem $(BOOST_LOCATION))
 CXXFLAGS += -g
 
 test_sources = $(wildcard test-*.cpp)
