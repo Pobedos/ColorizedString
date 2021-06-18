@@ -1,9 +1,10 @@
-#include "colorized-string.hpp"
 #include <iostream>
 #include <string>
+#include "colorized-string.hpp"
 
 int main()
 {
+  std::string a;
   using namespace Colorized;
   ColorizedString string("new string", ColorizedString::Foreground::DEFAULT,
     ColorizedString::Background::DEFAULT, ColorizedString::Emphasis::ITALIC);
