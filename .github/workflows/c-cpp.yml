@@ -5,16 +5,13 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
-env:
-  VALGRIND: "--leak-check=full --track-origins=yes"
   
 jobs:
   build:
 
     runs-on: ubuntu-latest
     container:
-      image: pobedos/myapp:1.2
+      image: pobedos/myapp:1.3
 
     steps:        
     - uses: actions/checkout@v2
@@ -29,7 +26,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     container:
-      image: pobedos/myapp:1.2
+      image: pobedos/myapp:1.3
     
     steps:
     - uses: actions/checkout@v2
@@ -47,5 +44,5 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       
-    - name: unit
+    - name: test
       run: /test/test.sh
