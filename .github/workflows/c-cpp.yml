@@ -13,43 +13,26 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    container:
+      image: pobedos/myapp:1.1
 
-    steps:
-    - name: Install boost
-      uses: MarkusJx/install-boost@v1.0.1
-      id: install-boost
-      with:
-        boost_version: 1.73.0
-    - name: Install valgrind
-      run: sudo apt-get install valgrind
-        
+    steps:        
     - uses: actions/checkout@v2
     
     - name: build
-      env:
-        BOOST_LOCATION: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: make build
     - name: run
       run: make run
   
   test:
-    
+  
     needs: build
     runs-on: ubuntu-latest
+    container:
+      image: pobedos/myapp:1.1
     
     steps:
     - uses: actions/checkout@v2
-    
-    - name: Install boost
-      uses: MarkusJx/install-boost@v1.0.1
-      id: install-boost
-      with:
-        boost_version: 1.73.0
-        
-    - name: Install valgrind
-      run: sudo apt-get install valgrind
       
     - name: unit
-      env:
-        BOOST_LOCATION: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-      run: make test
+      run: ./test.sh
