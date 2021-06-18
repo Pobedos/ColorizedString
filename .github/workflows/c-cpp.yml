@@ -6,14 +6,28 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  VALGRIND: "--leak-check=full --track-origins=yes"
+  
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install boost
+      uses: MarkusJx/install-boost@v1.0.1
+      id: install-boost
+      with:
+        boost_version: 1.73.0
+    - name: Install valgrind
+      run: sudo apt-get install valgrind
+        
     - uses: actions/checkout@v2
+    
     - name: build
+      env:
+        BOOST_LOCATION: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: make build
     - name: run
       run: make run
@@ -31,6 +45,10 @@ jobs:
       id: install-boost
       with:
         boost_version: 1.73.0
+        
+    - name: Install valgrind
+      run: sudo apt-get install valgrind
+      
     - name: unit
       env:
         BOOST_LOCATION: ${{ steps.install-boost.outputs.BOOST_ROOT }}
